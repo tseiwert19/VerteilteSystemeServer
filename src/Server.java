@@ -5,11 +5,15 @@
  */
 public class Server {
 
-	/**
-	 * Der Server sendet eine Anfrage zu allen anderen Servern.
+	/*
+	 * ---------------------------------wichtig ----------------------
 	 */
-	private void sendRequestToAllOtherServers() {
-		// zuerst einmal nicht wichtig
+	
+	/**
+	 * fügt eine, vom Client vorgeschlagene, Übersetzung ein
+	 */
+	private void insertNewTranslation(String VideoName, String neueBezeichnung) {
+		// sehr wichtig
 	}
 	
 	/**
@@ -20,19 +24,29 @@ public class Server {
 	}
 
 	/**
-	 * Der Server fordert ein Video von einem anderen Server an.
-	 */
-	private void requestVideo() {
-		// zuerst einmal nicht wichtig
-	}
-
-	/**
 	 * Der Server sendet ein Video zu dem anfragenden Client.
 	 */
 	private void sendVideo(String videoName) {
 		// sehr wichtig
 	}
+	
+	/**
+	 * fügt ein neues Video eines anderen Servers oder Clients ein
+	 */
+	private void insertNewVideo(String videoName) {
+		// sehr wichtig
+	}
 
+	/*
+	 * ---------------------------------unwichtig ----------------------
+	 */
+	/**
+	 * Der Server fordert ein Video von einem anderen Server an.
+	 */
+	private void requestVideo() {
+		// zuerst einmal nicht wichtig
+	}
+	
 	/**
 	 * Der Server stellt seine Datenbank, mit Hilfe der anderen Servern, wieder
 	 * her.
@@ -41,33 +55,26 @@ public class Server {
 		// zuerst einmal nicht wichtig
 	}
 
-	/**
-	 * fügt ein neues Video eines anderen Servers oder Clients ein
-	 */
-	private void insertNewVideo(String videoName) {
-		// sehr wichtig
-	}
-
-	/**
-	 * fügt eine, vom Client vorgeschlagene, Übersetzung ein
-	 */
-	private void insertNewTranslation(String VideoName, String neueBezeichnung) {
-		// sehr wichtig
-	}
 
 	/**
 	 * reserviert eine ID für ein neues Video und informiert alle anderen
 	 * Server, dass diese ID belegt ist
 	 */
 	private void reserveID() {
-// muss abgeklärt werden
+		// muss abgeklärt werden
 	}
 
 	/**
 	 * vergleicht die ID eines Videos mit der in der eigenen Datenbank
 	 */
 	private void compareID(int id) {
-// abklären
+		// abklären
 	}
 
+	/**
+	 * Der Server sendet eine Anfrage zu allen anderen Servern.
+	 */
+	private void sendRequestToAllOtherServers() {
+		// zuerst einmal nicht wichtig
+	}
 }
