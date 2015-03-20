@@ -6,10 +6,10 @@ import java.rmi.server.UnicastRemoteObject;
  * 
  * @author Thomas
  */
-public class Server extends UnicastRemoteObject 
+public class KampfrichterServer extends UnicastRemoteObject 
 implements IServer{
 
-	protected Server() throws RemoteException {
+	protected KampfrichterServer() throws RemoteException {
 		super();
 	}
 
