@@ -11,8 +11,8 @@ public class Server {
 	/**
 	 * fügt eine, vom Client vorgeschlagene, Übersetzung ein
 	 */
-	public void insertNewTranslation(String VideoName, String neueBezeichnung) {
-		// sehr wichtig
+	public String insertNewTranslation(String VideoName, String neueBezeichnung) {
+		return "hallo Welt";
 	}
 
 	/**
