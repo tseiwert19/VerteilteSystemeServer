@@ -11,6 +11,13 @@ public class Server {
 	private void sendRequestToAllOtherServers() {
 		// zuerst einmal nicht wichtig
 	}
+	
+	/**
+	 * findet video aus der Server datenbank
+	 */
+	private void findVideo(String name) {
+		// wichtig
+	}
 
 	/**
 	 * Der Server fordert ein Video von einem anderen Server an.
