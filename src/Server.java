@@ -8,14 +8,13 @@ public class Server {
 	/*
 	 * ---------------------------------wichtig ----------------------
 	 */
-	
 	/**
 	 * fügt eine, vom Client vorgeschlagene, Übersetzung ein
 	 */
-	private void insertNewTranslation(String VideoName, String neueBezeichnung) {
+	public void insertNewTranslation(String VideoName, String neueBezeichnung) {
 		// sehr wichtig
 	}
-	
+
 	/**
 	 * findet video aus der Server datenbank
 	 */
@@ -26,14 +25,15 @@ public class Server {
 	/**
 	 * Der Server sendet ein Video zu dem anfragenden Client.
 	 */
-	private void sendVideo(String videoName) {
-		// sehr wichtig
+	public void sendVideo(String videoName) {
+		findVideo(videoName);
+		// sende Video
 	}
-	
+
 	/**
 	 * fügt ein neues Video eines anderen Servers oder Clients ein
 	 */
-	private void insertNewVideo(String videoName) {
+	public void insertNewVideo(String videoName) {
 		// sehr wichtig
 	}
 
@@ -46,7 +46,7 @@ public class Server {
 	private void requestVideo() {
 		// zuerst einmal nicht wichtig
 	}
-	
+
 	/**
 	 * Der Server stellt seine Datenbank, mit Hilfe der anderen Servern, wieder
 	 * her.
@@ -54,7 +54,6 @@ public class Server {
 	private void restoreDatabase() {
 		// zuerst einmal nicht wichtig
 	}
-
 
 	/**
 	 * reserviert eine ID für ein neues Video und informiert alle anderen
