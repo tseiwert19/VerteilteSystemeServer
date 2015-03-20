@@ -1,4 +1,8 @@
+import java.net.MalformedURLException;
+import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
 /**
@@ -9,6 +13,26 @@ import java.rmi.server.UnicastRemoteObject;
 public class KampfrichterServer extends UnicastRemoteObject 
 implements IServer{
 
+	public static void main(String[] args)
+	  {
+	    try {
+	      LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
+	    }
+	    
+	    catch (RemoteException ex) {
+	      System.out.println(ex.getMessage());
+	    }
+	    try {
+	      Naming.rebind("Server", new KampfrichterServer());
+	    }
+	    catch (MalformedURLException ex) {
+	      System.out.println(ex.getMessage());
+	    }
+	    catch (RemoteException ex) {
+	      System.out.println(ex.getMessage());
+	    }
+	  }
+	
 	protected KampfrichterServer() throws RemoteException {
 		super();
 	}
