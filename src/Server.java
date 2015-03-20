@@ -1,9 +1,19 @@
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+
 /**
  * repräsentiert den Server für unser verteiltes Systeme Projekt
  * 
  * @author Thomas
  */
-public class Server {
+public class Server extends UnicastRemoteObject 
+implements IServer{
+
+	protected Server() throws RemoteException {
+		super();
+	}
+
+	private static final long serialVersionUID = 3701445934486704839L;
 
 	/*
 	 * ---------------------------------wichtig ----------------------
