@@ -1,38 +1,36 @@
 import java.net.MalformedURLException;
 import java.rmi.Naming;
+import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.List;
 
 /**
- * repräsentiert den Server für unser verteiltes Systeme Projekt
+ * reprï¿½sentiert den Server fï¿½r unser verteiltes Systeme Projekt
  * 
  * @author Thomas
  */
-public class KampfrichterServer extends UnicastRemoteObject 
-implements IServer{
+public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 
-	public static void main(String[] args)
-	  {
-	    try {
-	      LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
-	    }
-	    
-	    catch (RemoteException ex) {
-	      System.out.println(ex.getMessage());
-	    }
-	    try {
-	      Naming.rebind("Server", new KampfrichterServer());
-	    }
-	    catch (MalformedURLException ex) {
-	      System.out.println(ex.getMessage());
-	    }
-	    catch (RemoteException ex) {
-	      System.out.println(ex.getMessage());
-	    }
-	  }
-	
+	public static void main(String[] args) {
+		try {
+			LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
+		}
+
+		catch (RemoteException ex) {
+			System.out.println(ex.getMessage());
+		}
+		try {
+			Naming.rebind("Server", new KampfrichterServer());
+		} catch (MalformedURLException ex) {
+			System.out.println(ex.getMessage());
+		} catch (RemoteException ex) {
+			System.out.println(ex.getMessage());
+		}
+	}
+
 	protected KampfrichterServer() throws RemoteException {
 		super();
 	}
@@ -43,39 +41,35 @@ implements IServer{
 	 * ---------------------------------wichtig ----------------------
 	 */
 	/**
-	 * fügt eine, vom Client vorgeschlagene, Übersetzung ein
+	 * Test-Methode
 	 */
 	public String insert(String neueBezeichnung) {
 		return "hallo Welt";
 	}
-	
+
 	/**
-	 * fügt eine, vom Client vorgeschlagene, Übersetzung ein
+	 * fï¿½gt eine, vom Client vorgeschlagene, ï¿½bersetzung ein
 	 */
-	public void insertNewTranslation(String VideoName, String neueBezeichnung) {
+	public void insertNewTranslation(int id, String neueBezeichnung, String sprache) throws RemoteException {
+		DatenbankController dbController = new DatenbankController();
+		dbController.updateTranslation(id, neueBezeichnung, sprache);
 	}
 
 	/**
 	 * findet video aus der Server datenbank
 	 */
-	private void findVideo(String name) {
-		// wichtig
+	public List<Video> findVideo(String name) throws RemoteException {
+		VideoParser parser = new VideoParser();
+		return parser.mappeVideosVonName(name);
+
 	}
 
 	/**
-	 * Der Server sendet ein Video zu dem anfragenden Client.
+	 * fï¿½gt ein neues Video eines anderen Servers oder Clients ein
 	 */
-	public void sendVideo(String videoName) {
-		findVideo(videoName);
-		// sende Video
+	public void insertNewVideo(int id, String name, int ampel, String sprache) throws RemoteException{
+		DatenbankController dbController = new DatenbankController();
+		dbController.addVideo(id, name, ampel, sprache);
 	}
 
-	/**
-	 * fügt ein neues Video eines anderen Servers oder Clients ein
-	 */
-	public void insertNewVideo(String videoName) {
-		// sehr wichtig
-	}
-
-	
 }
