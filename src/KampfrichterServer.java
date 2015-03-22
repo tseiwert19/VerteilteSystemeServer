@@ -1,6 +1,6 @@
+import java.io.File;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
-import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -67,9 +67,9 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	/**
 	 * f�gt ein neues Video eines anderen Servers oder Clients ein
 	 */
-	public void insertNewVideo(int id, String name, int ampel, String sprache) throws RemoteException{
+	public void insertNewVideo(int id, String name, int ampel, String geraet, String beschreibung,String schwierigkeitsgrad,  String elementgruppe, File video,  String sprache) throws RemoteException{
 		DatenbankController dbController = new DatenbankController();
-		dbController.addVideo(id, name, ampel, sprache);
+		dbController.addVideo(id, name, ampel, geraet, beschreibung,schwierigkeitsgrad, elementgruppe, video, sprache);
 	}
 
 }
