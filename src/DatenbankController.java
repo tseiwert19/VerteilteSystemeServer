@@ -1,3 +1,4 @@
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -56,17 +57,17 @@ public class DatenbankController
 	 * @param sprache
 	 *            bestimmt in welche Tabelle eingefügt wird
 	 */
-	public void addVideo(int id, String name, int ampel, String sprache) {
+	public void addVideo(int id, String name, int ampel, String geraet, String beschreibung,String schwierigkeitsgrad, String elementgruppe, File video,  String sprache) {
 
 		connectToDb();
 		try {
 			connection.setAutoCommit(false);
 
 			Statement stmt = connection.createStatement();
-
-			String sql = "INSERT INTO " + sprache + " (id, videoname, ampel) "
+			//VIDEO NOCH NICHT BEACHTET!!!!
+			String sql = "INSERT INTO " + sprache + " (id, videoname, ampel, geraet, beschreibung, schwierigkeitsgrad, elementgruppe) "
 					+ "VALUES (" + id + " , '" + name
-					+ "', " + ampel + ");";
+					+ "', " + ampel + ", '" + geraet + "','" + beschreibung + "', '" + schwierigkeitsgrad + "', '" + elementgruppe + "' );";
 
 			stmt.executeUpdate(sql);
 
