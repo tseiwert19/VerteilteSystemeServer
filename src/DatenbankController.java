@@ -49,6 +49,27 @@ public class DatenbankController
 
 	}
 
+	public void createDatabase() {
+		createTable(GERMAN);
+		createTable(FRENCH);
+		createTable(ENGLISH);
+	}
+
+	private void createTable(String language) {
+		connectToDb();
+		try {
+			Statement statement = connection.createStatement();
+			statement
+					.executeUpdate("CREATE TABLE IF NOT EXISTS "
+							+ language
+							+ "(id INT PRIMARY KEY NOT NULL, videoname VARCHAR(50),  ampel INT NOT NULL, geraet VARCHAR, beschreibung VARCHAR, schwierigkeitsgrad VARCHAR, elementgruppe VARCHAR, video BLOB);  ");
+			statement.close();
+		} catch (SQLException e) {
+			System.err.println("Fehler beim Erstellen der Datenbank!");
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * Fuegt ein Video in die Datenbank
 	 * 
@@ -57,17 +78,22 @@ public class DatenbankController
 	 * @param sprache
 	 *            bestimmt in welche Tabelle eingefügt wird
 	 */
-	public void addVideo(int id, String name, int ampel, String geraet, String beschreibung,String schwierigkeitsgrad, String elementgruppe, File video,  String sprache) {
+	public void addVideo(int id, String name, int ampel, String geraet,
+			String beschreibung, String schwierigkeitsgrad,
+			String elementgruppe, File video, String sprache) {
 
 		connectToDb();
 		try {
 			connection.setAutoCommit(false);
 
 			Statement stmt = connection.createStatement();
-			//VIDEO NOCH NICHT BEACHTET!!!!
-			String sql = "INSERT INTO " + sprache + " (id, videoname, ampel, geraet, beschreibung, schwierigkeitsgrad, elementgruppe) "
-					+ "VALUES (" + id + " , '" + name
-					+ "', " + ampel + ", '" + geraet + "','" + beschreibung + "', '" + schwierigkeitsgrad + "', '" + elementgruppe + "' );";
+			// VIDEO NOCH NICHT BEACHTET!!!!
+			String sql = "INSERT INTO "
+					+ sprache
+					+ " (id, videoname, ampel, geraet, beschreibung, schwierigkeitsgrad, elementgruppe) "
+					+ "VALUES (" + id + " , '" + name + "', " + ampel + ", '"
+					+ geraet + "','" + beschreibung + "', '"
+					+ schwierigkeitsgrad + "', '" + elementgruppe + "' );";
 
 			stmt.executeUpdate(sql);
 
@@ -127,7 +153,7 @@ public class DatenbankController
 					results = findDatasets("SELECT * FROM " + ENGLISH
 							+ " WHERE videoname LIKE '%" + name + "'");
 				}
-			}else{
+			} else {
 				results.close();
 				results = findDatasets("SELECT * FROM " + GERMAN
 						+ " WHERE videoname LIKE '%" + name + "%'");
