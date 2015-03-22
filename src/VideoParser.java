@@ -30,6 +30,11 @@ public class VideoParser
         ResultSet ergebnis = dbController.getAllByName(name);
         return parseVideos(ergebnis);
     }
+    
+    public ArrayList<Video> mappeVideosVonSprache(String sprache){
+    	ResultSet ergebnis = dbController.getAllEntries(sprache);
+    	return parseVideos(ergebnis);
+    }
     /**
      * Mappt alle Datensaetze aus der Datenbank, die mit i uebereinstimmen, auf Video-Objekte
      * @param i = Ampelfarbe (0=grün, 1=gelb, 2=rot)
