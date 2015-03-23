@@ -25,10 +25,12 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 
 	public static final String SERVER_LANGUAGE = DatenbankController.GERMAN;
 	private static final String RESERVED = "RESERVED";
+	
 	/**
 	 * Liste mit allen Server-Adressen
 	 */
 	private List<URL> server;
+	
 	/**
 	 * Liste mit allen Sprachen
 	 */
@@ -66,15 +68,6 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 
 	private static final long serialVersionUID = 3701445934486704839L;
 
-	/*
-	 * ---------------------------------wichtig ----------------------
-	 */
-	/**
-	 * Test-Methode
-	 */
-	public String insert(String neueBezeichnung) {
-		return "hallo Welt";
-	}
 
 	/**
 	 * f�gt eine, vom Client vorgeschlagene, �bersetzung ein
@@ -240,5 +233,6 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 			null, SERVER_LANGUAGE);
 		}
 	}
+
 
 }
