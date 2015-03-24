@@ -56,14 +56,14 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	protected KampfrichterServer() throws RemoteException,
 			MalformedURLException {
 		super();
-		// server = new ArrayList<String>();
-		// server.add(SERVER_DEUTSCHLAND);
-		// server.add(SERVER_FRANKREICH);
+		 server = new ArrayList<String>();
+		server.add(SERVER_DEUTSCHLAND);
+		server.add(SERVER_FRANKREICH);
 		// server.add(SERVER_ENGLAND);
-		// languages = new ArrayList<String>();
-		// languages.add(DatenbankController.GERMAN);
+		languages = new ArrayList<String>();
+		 languages.add(DatenbankController.GERMAN);
 		// languages.add(DatenbankController.ENGLISH);
-		// languages.add(DatenbankController.FRENCH);
+		 languages.add(DatenbankController.FRENCH);
 	}
 
 	private static final long serialVersionUID = 3701445934486704839L;
@@ -76,7 +76,7 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 			String sprache) throws RemoteException {
 		DatenbankController dbController = new DatenbankController();
 		dbController.updateTranslation(id, neueBezeichnung, sprache);
-		//updateTranslationOnOtherServers(id, neueBezeichnung, SERVER_LANGUAGE)
+		updateTranslationOnOtherServers(id, neueBezeichnung, SERVER_LANGUAGE);
 	}
 	
 	private void updateTranslationOnOtherServers(int id, String neueBezeichnung, String sprache){
@@ -99,9 +99,9 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 		VideoParser parser = new VideoParser();
 		List<Video> videos = parser.mappeVideosVonName(name);
 		//TODO testen
-		//if (videos.size() == 0) {
-		//	videos = findVideoOnOtherServers(name);
-		//}
+		if (videos.size() == 0) {
+			videos = findVideoOnOtherServers(name);
+		}
 		return videos;
 	}
 
@@ -117,9 +117,9 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 				schwierigkeitsgrad, elementgruppe, video, sprache);
 		// Nach einem Insert sollten andere Server die ID reservieren
 		//TODO testen
-	//	if(sprache.equals(SERVER_LANGUAGE)){
-	//		informServerAboutReservation(id);
-	//	}
+		if(sprache.equals(SERVER_LANGUAGE)){
+			informServerAboutReservation(id);
+		}
 		
 	}
 
@@ -144,7 +144,12 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 		for (String tmp : server) {
 			try {
 				IServer iserver = (IServer) Naming.lookup(tmp);
-				iserver.reserveId(id);
+				if(!SERVER_LANGUAGE.equals(iserver.getServerLanguage())){
+					System.out.println("DEUTSCH:  call Server: " + tmp + " reserveId()");
+					iserver.reserveId(id);
+					
+				}
+					
 			} catch (MalformedURLException | RemoteException
 					| NotBoundException e) {
 				// TODO Auto-generated catch block
@@ -156,22 +161,29 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	/**
 	 * Der Server sucht Video auf anderen Servern
 	 */
+	/**
+	 * @param name
+	 * @return
+	 */
 	private List<Video> findVideoOnOtherServers(String name) {
 		List<Video> videos = new ArrayList<Video>();
 		for (String tmp : server) {
 			try {
 				IServer iserver = (IServer) Naming.lookup(tmp);
-				videos = iserver.findVideo(name);
-				if (videos.size() != 0) {
-					String sprache = iserver.getServerLanguage();
-					//Fügt Videos in eigene Datenbank
-					for (Video video : videos) {
-						insertNewVideo(video.getId(), video.getName(), video.getAmpel(),
-								video.getGeraet(), video.getBeschreibung(),
-								video.getSchwierigkeitsgrad(), video.getElementgruppe(),
-								null, sprache);
-					}
-					return videos;
+				if(!SERVER_LANGUAGE.equals(iserver.getServerLanguage())){
+					videos = iserver.findVideo(name);
+					if (videos.size() != 0) {
+						String sprache = iserver.getServerLanguage();
+						//Fügt Videos in eigene Datenbank
+						for (Video video : videos) {
+							insertNewVideo(video.getId(), video.getName(), video.getAmpel(),
+									video.getGeraet(), video.getBeschreibung(),
+									video.getSchwierigkeitsgrad(), video.getElementgruppe(),
+									null, sprache);
+						}
+						return videos;
+				}
+			
 				}
 			} catch (MalformedURLException | RemoteException
 					| NotBoundException e) {
