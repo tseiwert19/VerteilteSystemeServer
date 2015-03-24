@@ -73,17 +73,22 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	 * f�gt eine, vom Client vorgeschlagene, �bersetzung ein
 	 */
 	public void insertNewTranslation(int id, String neueBezeichnung,
-			String sprache) throws RemoteException {
+			String sprache, boolean insertOnOtherServers) throws RemoteException {
 		DatenbankController dbController = new DatenbankController();
 		dbController.updateTranslation(id, neueBezeichnung, sprache);
-		updateTranslationOnOtherServers(id, neueBezeichnung, SERVER_LANGUAGE);
+		if(insertOnOtherServers){
+			updateTranslationOnOtherServers(id, neueBezeichnung, SERVER_LANGUAGE);
+		}	
 	}
 	
 	private void updateTranslationOnOtherServers(int id, String neueBezeichnung, String sprache){
+		System.out.println("DEUTSCH: updateTranslationOnOtherServers()");
 		for (String tmp : server) {
 			try {
 				IServer iserver = (IServer) Naming.lookup(tmp);
-				iserver.insertNewTranslation(id, neueBezeichnung, sprache);
+				if(!SERVER_LANGUAGE.equals(iserver.getServerLanguage())){
+					iserver.insertNewTranslation(id, neueBezeichnung, sprache, false);
+				}	
 			} catch (MalformedURLException | RemoteException
 					| NotBoundException e) {
 				// TODO Auto-generated catch block
@@ -99,7 +104,7 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 		VideoParser parser = new VideoParser();
 		List<Video> videos = parser.mappeVideosVonName(name);
 		//TODO testen
-		if (videos.size() == 0) {
+		if (videos.size() == 0 && searchOnOtherServers) {
 			videos = findVideoOnOtherServers(name);
 		}
 		return videos;
