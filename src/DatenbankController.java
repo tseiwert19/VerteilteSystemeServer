@@ -1,6 +1,7 @@
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -75,6 +76,7 @@ public class DatenbankController
 
 	/**
 	 * Fuegt ein Video in die Datenbank
+	 * 
 	 * @id -1 für AUTOINCREMENT !
 	 * 
 	 * @param video
@@ -88,25 +90,30 @@ public class DatenbankController
 			String elementgruppe, File video, String sprache) {
 		String idString;
 		int rowid = -1;
-		if(id < 0){
-			idString = "null"; //autoincrement 
-		}else{
+		ResultSet result;
+		if (id < 0) {
+			idString = "null"; // autoincrement
+		} else {
 			idString = Integer.toString(id);
 		}
 		connectToDb();
 		try {
 			connection.setAutoCommit(false);
-
-			Statement stmt = connection.createStatement();
 			// VIDEO NOCH NICHT BEACHTET!!!!
 			String sql = "INSERT INTO "
 					+ sprache
 					+ " (id, videoname, ampel, geraet, beschreibung, schwierigkeitsgrad, elementgruppe) "
-					+ "VALUES (" + idString + ", '" + name + "', " + ampel + ", '"
-					+ geraet + "','" + beschreibung + "', '"
+					+ "VALUES (" + idString + ", '" + name + "', " + ampel
+					+ ", '" + geraet + "','" + beschreibung + "', '"
 					+ schwierigkeitsgrad + "', '" + elementgruppe + "' );";
 
-			rowid = stmt.executeUpdate(sql);
+			PreparedStatement stmt = connection.prepareStatement(sql,
+					Statement.RETURN_GENERATED_KEYS);
+			stmt.executeUpdate();
+			ResultSet generatedKeys = stmt.getGeneratedKeys();
+			generatedKeys.next();
+
+			id = (int) generatedKeys.getLong(1);
 
 			stmt.close();
 			connection.commit();
@@ -116,8 +123,8 @@ public class DatenbankController
 			System.err.println("Fehler beim Einfügen in die Datenbank!");
 			e.printStackTrace();
 		}
-		
-		return rowid;
+		System.out.println("ID: " + id);
+		return id;
 	}
 
 	/**
@@ -155,17 +162,18 @@ public class DatenbankController
 		ResultSet results = findDatasets("SELECT * FROM " + serverLanguage
 				+ " WHERE videoname LIKE '%" + name + "%'");
 		String lastLanguage = serverLanguage;
-		
-		for(String language : secondaryTablenames){
+
+		for (String language : secondaryTablenames) {
 			try {
-				if(!results.next()){
+				if (!results.next()) {
 					results.close();
 					results = findDatasets("SELECT * FROM " + language
-						+ " WHERE videoname LIKE '%" + name + "%'");
-				}else{
-					results.close();
-					return results = findDatasets("SELECT * FROM " + lastLanguage
 							+ " WHERE videoname LIKE '%" + name + "%'");
+				} else {
+					results.close();
+					return results = findDatasets("SELECT * FROM "
+							+ lastLanguage + " WHERE videoname LIKE '%" + name
+							+ "%'");
 				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -173,25 +181,25 @@ public class DatenbankController
 			}
 			lastLanguage = language;
 		}
-//		try {
-//			if (!results.next()) {
-//				results.close();
-//				results = findDatasets("SELECT * FROM " + Konstanten.LANGUAGE_FRENCH
-//						+ " WHERE videoname LIKE '%" + name + "'");
-//				if (!results.next()) {
-//					results.close();
-//					results = findDatasets("SELECT * FROM " + Konstanten.LANGUAGE_ENGLISH
-//							+ " WHERE videoname LIKE '%" + name + "'");
-//				}
-//			} else {
-//				results.close();
-//				results = findDatasets("SELECT * FROM " + serverLanguage
-//						+ " WHERE videoname LIKE '%" + name + "%'");
-//			}
-//
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
+		// try {
+		// if (!results.next()) {
+		// results.close();
+		// results = findDatasets("SELECT * FROM " + Konstanten.LANGUAGE_FRENCH
+		// + " WHERE videoname LIKE '%" + name + "'");
+		// if (!results.next()) {
+		// results.close();
+		// results = findDatasets("SELECT * FROM " + Konstanten.LANGUAGE_ENGLISH
+		// + " WHERE videoname LIKE '%" + name + "'");
+		// }
+		// } else {
+		// results.close();
+		// results = findDatasets("SELECT * FROM " + serverLanguage
+		// + " WHERE videoname LIKE '%" + name + "%'");
+		// }
+		//
+		// } catch (SQLException e) {
+		// e.printStackTrace();
+		// }
 		return results;
 	}
 
@@ -264,7 +272,8 @@ public class DatenbankController
 
 			stmt = connection.createStatement();
 			String sql = "UPDATE " + sprache + " SET videoname = '" + newName
-					+ "', ampel = '" + Konstanten.YELLOW + "' WHERE id = '" + id + "';";
+					+ "', ampel = '" + Konstanten.YELLOW + "' WHERE id = '"
+					+ id + "';";
 			stmt.executeUpdate(sql);
 			connection.commit();
 
