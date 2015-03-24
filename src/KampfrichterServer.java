@@ -211,12 +211,15 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 		for (String tmp : server) {
 			try {
 				IServer iserver = (IServer) Naming.lookup(tmp);
-				videos = iserver.getAllVideosByLanguage(SERVER_LANGUAGE);
-				for(Video video : videos){
-					if(!alleVideos.contains(video)){
-						alleVideos.add(video);
+				if(!SERVER_LANGUAGE.equals(iserver.getServerLanguage())){
+					videos = iserver.getAllVideosByLanguage(SERVER_LANGUAGE);
+					for(Video video : videos){
+						if(!alleVideos.contains(video)){
+							alleVideos.add(video);
+						}
 					}
 				}
+		
 				
 			} catch (MalformedURLException | RemoteException
 					| NotBoundException e) {
