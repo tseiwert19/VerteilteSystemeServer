@@ -90,14 +90,7 @@ public class DatenbankController
 	public int addVideo(int id, String name, int ampel, String geraet,
 			String beschreibung, String schwierigkeitsgrad,
 			String elementgruppe, byte[] video, String sprache) {
-		String idString;
-		int rowid = -1;
-		ResultSet result;
-		if (id < 0) {
-			idString = "null"; // autoincrement
-		} else {
-			idString = Integer.toString(id);
-		}
+
 		connectToDb();
 		try {
 			connection.setAutoCommit(false);
@@ -118,7 +111,7 @@ public class DatenbankController
 			stmt.setString(7, elementgruppe);
 			stmt.setBytes(8, video);
 			
-		;
+		
 			stmt.executeUpdate();
 			ResultSet generatedKeys = stmt.getGeneratedKeys();
 			generatedKeys.next();
