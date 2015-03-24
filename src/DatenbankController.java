@@ -14,13 +14,6 @@ import java.sql.Statement;
 public class DatenbankController
 
 {
-	public static final String GERMAN = "deutsch";
-	public static final String ENGLISH = "englisch";
-	public static final String FRENCH = "franzoesisch";
-	public static final int GREEN = 0;
-	public static final int YELLOW = 0;
-	public static final int RED = 0;
-
 	private Connection connection;
 	private static final String DB_PATH = "server.sqlite";
 
@@ -50,9 +43,9 @@ public class DatenbankController
 	}
 
 	public void createDatabase() {
-		createTable(GERMAN);
-		createTable(FRENCH);
-		createTable(ENGLISH);
+		createTable(Konstanten.LANGUAGE_GERMAN);
+		createTable(Konstanten.LANGUAGE_FRENCH);
+		createTable(Konstanten.LANGUAGE_ENGLISH);
 	}
 
 	private void createTable(String language) {
@@ -139,23 +132,23 @@ public class DatenbankController
 	 */
 	public ResultSet getAllByName(String name) {
 		System.out.println("GetAllByName()-Aufruf");
-		ResultSet results = findDatasets("SELECT * FROM " + GERMAN
+		ResultSet results = findDatasets("SELECT * FROM " + Konstanten.LANGUAGE_GERMAN
 				+ " WHERE videoname LIKE '%" + name + "%'");
 		try {
 			if (!results.next()) {
 				results.close();
 				System.out.println("FRENCH ZWEIG");
-				results = findDatasets("SELECT * FROM " + FRENCH
+				results = findDatasets("SELECT * FROM " + Konstanten.LANGUAGE_FRENCH
 						+ " WHERE videoname LIKE '%" + name + "'");
 				if (!results.next()) {
 					System.out.println("ENGLISH ZWEIG");
 					results.close();
-					results = findDatasets("SELECT * FROM " + ENGLISH
+					results = findDatasets("SELECT * FROM " + Konstanten.LANGUAGE_ENGLISH
 							+ " WHERE videoname LIKE '%" + name + "'");
 				}
 			} else {
 				results.close();
-				results = findDatasets("SELECT * FROM " + GERMAN
+				results = findDatasets("SELECT * FROM " + Konstanten.LANGUAGE_GERMAN
 						+ " WHERE videoname LIKE '%" + name + "%'");
 			}
 
@@ -234,7 +227,7 @@ public class DatenbankController
 
 			stmt = connection.createStatement();
 			String sql = "UPDATE " + sprache + " SET videoname = '" + newName
-					+ "', ampel = '" + YELLOW + "' WHERE id = '" + id + "';";
+					+ "', ampel = '" + Konstanten.YELLOW + "' WHERE id = '" + id + "';";
 			stmt.executeUpdate(sql);
 			connection.commit();
 
