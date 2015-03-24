@@ -161,11 +161,11 @@ public class DatenbankController
 				if(!results.next()){
 					results.close();
 					results = findDatasets("SELECT * FROM " + language
-						+ " WHERE videoname LIKE '%" + name + "'");
+						+ " WHERE videoname LIKE '%" + name + "%'");
 				}else{
 					results.close();
 					return results = findDatasets("SELECT * FROM " + lastLanguage
-							+ " WHERE videoname LIKE '%" + name + "'");
+							+ " WHERE videoname LIKE '%" + name + "%'");
 				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
