@@ -113,7 +113,7 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	 */
 	public void insertNewVideo(String name, int ampel, String geraet,
 			String beschreibung, String schwierigkeitsgrad,
-			String elementgruppe, File video, String sprache)
+			String elementgruppe, byte[] video, String sprache)
 			throws RemoteException {
 		DatenbankController dbController = new DatenbankController(
 				serverLanguage);
