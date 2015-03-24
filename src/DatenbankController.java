@@ -75,16 +75,24 @@ public class DatenbankController
 
 	/**
 	 * Fuegt ein Video in die Datenbank
+	 * @id -1 für AUTOINCREMENT !
 	 * 
 	 * @param video
 	 *            Video, das eingefügt wird
 	 * @param sprache
 	 *            bestimmt in welche Tabelle eingefügt wird
+	 * @return rowId
 	 */
-	public void addVideo(int id, String name, int ampel, String geraet,
+	public int addVideo(int id, String name, int ampel, String geraet,
 			String beschreibung, String schwierigkeitsgrad,
 			String elementgruppe, File video, String sprache) {
-
+		String idString;
+		int rowid = -1;
+		if(id < 0){
+			idString = "null"; //autoincrement 
+		}else{
+			idString = Integer.toString(id);
+		}
 		connectToDb();
 		try {
 			connection.setAutoCommit(false);
@@ -94,11 +102,11 @@ public class DatenbankController
 			String sql = "INSERT INTO "
 					+ sprache
 					+ " (id, videoname, ampel, geraet, beschreibung, schwierigkeitsgrad, elementgruppe) "
-					+ "VALUES (" + id + " , '" + name + "', " + ampel + ", '"
+					+ "VALUES (" + idString + ", '" + name + "', " + ampel + ", '"
 					+ geraet + "','" + beschreibung + "', '"
 					+ schwierigkeitsgrad + "', '" + elementgruppe + "' );";
 
-			stmt.executeUpdate(sql);
+			rowid = stmt.executeUpdate(sql);
 
 			stmt.close();
 			connection.commit();
@@ -108,6 +116,8 @@ public class DatenbankController
 			System.err.println("Fehler beim Einfügen in die Datenbank!");
 			e.printStackTrace();
 		}
+		
+		return rowid;
 	}
 
 	/**
