@@ -15,9 +15,9 @@ public class VideoParser
 {
     private DatenbankController dbController;
 
-    public VideoParser()
+    public VideoParser(String sprache)
     {
-        dbController = new DatenbankController();
+        dbController = new DatenbankController(sprache);
     }
 
     /**
