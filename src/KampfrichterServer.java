@@ -171,7 +171,7 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 			try {
 				IServer iserver = (IServer) Naming.lookup(tmp);
 				if(!SERVER_LANGUAGE.equals(iserver.getServerLanguage())){
-					videos = iserver.getAllVideosByLanguage(iserver.getServerLanguage());
+					videos = iserver.findVideo(name, false);
 					if (videos.size() != 0) {
 						String sprache = iserver.getServerLanguage();
 						//Fügt Videos in eigene Datenbank
