@@ -95,7 +95,7 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	/**
 	 * findet video aus der Server datenbank
 	 */
-	public List<Video> findVideo(String name) throws RemoteException {
+	public List<Video> findVideo(String name, boolean searchOnOtherServers) throws RemoteException {
 		VideoParser parser = new VideoParser();
 		List<Video> videos = parser.mappeVideosVonName(name);
 		//TODO testen
@@ -171,7 +171,7 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 			try {
 				IServer iserver = (IServer) Naming.lookup(tmp);
 				if(!SERVER_LANGUAGE.equals(iserver.getServerLanguage())){
-					videos = iserver.findVideo(name);
+					videos = iserver.findVideo(name, false);
 					if (videos.size() != 0) {
 						String sprache = iserver.getServerLanguage();
 						//Fügt Videos in eigene Datenbank
