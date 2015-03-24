@@ -4,6 +4,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Diese Klasse enthaelt alle Funktionen fuer die Datenbank
@@ -15,14 +17,22 @@ public class DatenbankController
 
 {
 	private Connection connection;
+	private String serverLanguage;
 	private static final String DB_PATH = "server.sqlite";
+	private List<String> secondaryTablenames;
 
 	/**
 	 * Konstruktor Stellt die Verbindung zur Datenbank her und erstellt die
 	 * Datenbank(Falls sie noch nicht existiert)
 	 */
-	public DatenbankController() {
+	public DatenbankController(String serverLanguage) {
 		connectToDb();
+		this.serverLanguage = serverLanguage;
+		secondaryTablenames = new ArrayList<String>();
+		secondaryTablenames.add(Konstanten.LANGUAGE_ENGLISH);
+		secondaryTablenames.add(Konstanten.LANGUAGE_GERMAN);
+		secondaryTablenames.add(Konstanten.LANGUAGE_FRENCH);
+		secondaryTablenames.remove(serverLanguage);
 	}
 
 	/**
@@ -132,29 +142,46 @@ public class DatenbankController
 	 */
 	public ResultSet getAllByName(String name) {
 		System.out.println("GetAllByName()-Aufruf");
-		ResultSet results = findDatasets("SELECT * FROM " + Konstanten.LANGUAGE_GERMAN
+		ResultSet results = findDatasets("SELECT * FROM " + serverLanguage
 				+ " WHERE videoname LIKE '%" + name + "%'");
-		try {
-			if (!results.next()) {
-				results.close();
-				System.out.println("FRENCH ZWEIG");
-				results = findDatasets("SELECT * FROM " + Konstanten.LANGUAGE_FRENCH
-						+ " WHERE videoname LIKE '%" + name + "'");
-				if (!results.next()) {
-					System.out.println("ENGLISH ZWEIG");
+		String lastLanguage = serverLanguage;
+		
+		for(String language : secondaryTablenames){
+			try {
+				if(!results.next()){
 					results.close();
-					results = findDatasets("SELECT * FROM " + Konstanten.LANGUAGE_ENGLISH
+					results = findDatasets("SELECT * FROM " + language
+						+ " WHERE videoname LIKE '%" + name + "'");
+				}else{
+					results.close();
+					return results = findDatasets("SELECT * FROM " + lastLanguage
 							+ " WHERE videoname LIKE '%" + name + "'");
 				}
-			} else {
-				results.close();
-				results = findDatasets("SELECT * FROM " + Konstanten.LANGUAGE_GERMAN
-						+ " WHERE videoname LIKE '%" + name + "%'");
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
+			lastLanguage = language;
 		}
+//		try {
+//			if (!results.next()) {
+//				results.close();
+//				results = findDatasets("SELECT * FROM " + Konstanten.LANGUAGE_FRENCH
+//						+ " WHERE videoname LIKE '%" + name + "'");
+//				if (!results.next()) {
+//					results.close();
+//					results = findDatasets("SELECT * FROM " + Konstanten.LANGUAGE_ENGLISH
+//							+ " WHERE videoname LIKE '%" + name + "'");
+//				}
+//			} else {
+//				results.close();
+//				results = findDatasets("SELECT * FROM " + serverLanguage
+//						+ " WHERE videoname LIKE '%" + name + "%'");
+//			}
+//
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
 		return results;
 	}
 
