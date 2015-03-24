@@ -110,12 +110,12 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	/**
 	 * f�gt ein neues Video eines anderen Servers oder Clients ein
 	 */
-	public void insertNewVideo(int id, String name, int ampel, String geraet,
+	public void insertNewVideo(String name, int ampel, String geraet,
 			String beschreibung, String schwierigkeitsgrad,
 			String elementgruppe, File video, String sprache)
 			throws RemoteException {
 		DatenbankController dbController = new DatenbankController(serverLanguage);
-		dbController.addVideo(id, name, ampel, geraet, beschreibung,
+		int id = dbController.addVideo(-1, name, ampel, geraet, beschreibung,
 				schwierigkeitsgrad, elementgruppe, video, sprache);
 		// Nach einem Insert sollten andere Server die ID reservieren
 		// TODO testen
@@ -179,7 +179,7 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 						String sprache = iserver.getServerLanguage();
 						// Fügt Videos in eigene Datenbank
 						for (Video video : videos) {
-							insertNewVideo(video.getId(), video.getName(),
+							insertNewVideo(video.getName(),
 									video.getAmpel(), video.getGeraet(),
 									video.getBeschreibung(),
 									video.getSchwierigkeitsgrad(),
