@@ -68,7 +68,7 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	public void insertNewTranslation(int id, String neueBezeichnung,
 			String sprache, boolean insertOnOtherServers)
 			throws RemoteException {
-		DatenbankController dbController = new DatenbankController();
+		DatenbankController dbController = new DatenbankController(serverLanguage);
 		dbController.updateTranslation(id, neueBezeichnung, sprache);
 		if (insertOnOtherServers) {
 			updateTranslationOnOtherServers(id, neueBezeichnung, serverLanguage);
@@ -98,7 +98,7 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	 */
 	public List<Video> findVideo(String name, boolean searchOnOtherServers)
 			throws RemoteException {
-		VideoParser parser = new VideoParser();
+		VideoParser parser = new VideoParser(serverLanguage);
 		List<Video> videos = parser.mappeVideosVonName(name);
 		// TODO testen
 		if (videos.size() == 0 && searchOnOtherServers) {
@@ -114,7 +114,7 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 			String beschreibung, String schwierigkeitsgrad,
 			String elementgruppe, File video, String sprache)
 			throws RemoteException {
-		DatenbankController dbController = new DatenbankController();
+		DatenbankController dbController = new DatenbankController(serverLanguage);
 		dbController.addVideo(id, name, ampel, geraet, beschreibung,
 				schwierigkeitsgrad, elementgruppe, video, sprache);
 		// Nach einem Insert sollten andere Server die ID reservieren
@@ -129,7 +129,7 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	 * Server reserviert ID in der Datenbank
 	 */
 	public void reserveId(int id) throws RemoteException {
-		DatenbankController dbController = new DatenbankController();
+		DatenbankController dbController = new DatenbankController(serverLanguage);
 		dbController.addVideo(id, Konstanten.RESERVED_ID, Konstanten.RED, "",
 				"", "", "", null, serverLanguage);
 
@@ -234,7 +234,7 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	 */
 	public List<Video> getAllVideosByLanguage(String language)
 			throws RemoteException {
-		VideoParser parser = new VideoParser();
+		VideoParser parser = new VideoParser(serverLanguage);
 		return parser.mappeVideosVonSprache(language);
 	}
 
@@ -246,7 +246,7 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	 */
 	public void restoreDatabase() throws RemoteException {
 		List<Video> videos = restoreVideos();
-		DatenbankController dbController = new DatenbankController();
+		DatenbankController dbController = new DatenbankController(serverLanguage);
 		dbController.createDatabase();
 		for (Video video : videos) {
 			dbController.addVideo(video.getId(), video.getName(),
