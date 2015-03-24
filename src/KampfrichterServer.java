@@ -19,8 +19,8 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	/**
 	 * Adressen zu den Servern
 	 */
-	public static final String SERVER_DEUTSCHLAND = "";
-	public static final String SERVER_FRANKREICH = "";
+	public static final String SERVER_DEUTSCHLAND = "rmi://de-server:1099/Server";
+	public static final String SERVER_FRANKREICH = "rmi://fr-server:1099/Server";
 	public static final String SERVER_ENGLAND = "";
 
 	public static final String SERVER_LANGUAGE = DatenbankController.GERMAN;
@@ -29,7 +29,7 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	/**
 	 * Liste mit allen Server-Adressen
 	 */
-	private List<URL> server;
+	private List<String> server;
 	
 	/**
 	 * Liste mit allen Sprachen
@@ -56,10 +56,10 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	protected KampfrichterServer() throws RemoteException,
 			MalformedURLException {
 		super();
-		// server = new ArrayList<URL>();
-		// server.add(new URL(SERVER_DEUTSCHLAND));
-		// server.add(new URL(SERVER_FRANKREICH));
-		// server.add(new URL(SERVER_ENGLAND));
+		// server = new ArrayList<String>();
+		// server.add(SERVER_DEUTSCHLAND);
+		// server.add(SERVER_FRANKREICH);
+		// server.add(SERVER_ENGLAND);
 		// languages = new ArrayList<String>();
 		// languages.add(DatenbankController.GERMAN);
 		// languages.add(DatenbankController.ENGLISH);
@@ -80,9 +80,9 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	}
 	
 	private void updateTranslationOnOtherServers(int id, String neueBezeichnung, String sprache){
-		for (URL tmp : server) {
+		for (String tmp : server) {
 			try {
-				IServer iserver = (IServer) Naming.lookup(tmp.toString());
+				IServer iserver = (IServer) Naming.lookup(tmp);
 				iserver.insertNewTranslation(id, neueBezeichnung, sprache);
 			} catch (MalformedURLException | RemoteException
 					| NotBoundException e) {
@@ -141,9 +141,9 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	 *            zu reservierende ID
 	 */
 	private void informServerAboutReservation(int id) {
-		for (URL tmp : server) {
+		for (String tmp : server) {
 			try {
-				IServer iserver = (IServer) Naming.lookup(tmp.toString());
+				IServer iserver = (IServer) Naming.lookup(tmp);
 				iserver.reserveId(id);
 			} catch (MalformedURLException | RemoteException
 					| NotBoundException e) {
@@ -158,9 +158,9 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	 */
 	private List<Video> findVideoOnOtherServers(String name) {
 		List<Video> videos = new ArrayList<Video>();
-		for (URL tmp : server) {
+		for (String tmp : server) {
 			try {
-				IServer iserver = (IServer) Naming.lookup(tmp.toString());
+				IServer iserver = (IServer) Naming.lookup(tmp);
 				videos = iserver.findVideo(name);
 				if (videos.size() != 0) {
 					String sprache = iserver.getServerLanguage();
@@ -191,9 +191,9 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	private List<Video> restoreVideos() throws RemoteException{
 		List<Video> alleVideos = new ArrayList<Video>();
 		List<Video> videos;
-		for (URL tmp : server) {
+		for (String tmp : server) {
 			try {
-				IServer iserver = (IServer) Naming.lookup(tmp.toString());
+				IServer iserver = (IServer) Naming.lookup(tmp);
 				videos = iserver.getAllVideosByLanguage(SERVER_LANGUAGE);
 				for(Video video : videos){
 					if(!alleVideos.contains(video)){
