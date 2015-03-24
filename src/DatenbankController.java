@@ -1,4 +1,6 @@
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -87,7 +89,7 @@ public class DatenbankController
 	 */
 	public int addVideo(int id, String name, int ampel, String geraet,
 			String beschreibung, String schwierigkeitsgrad,
-			String elementgruppe, File video, String sprache) {
+			String elementgruppe, byte[] video, String sprache) {
 		String idString;
 		int rowid = -1;
 		ResultSet result;
@@ -99,16 +101,24 @@ public class DatenbankController
 		connectToDb();
 		try {
 			connection.setAutoCommit(false);
-			// VIDEO NOCH NICHT BEACHTET!!!!
-			String sql = "INSERT INTO "
+			String sql =  "INSERT INTO "
 					+ sprache
-					+ " (id, videoname, ampel, geraet, beschreibung, schwierigkeitsgrad, elementgruppe) "
-					+ "VALUES (" + idString + ", '" + name + "', " + ampel
-					+ ", '" + geraet + "','" + beschreibung + "', '"
-					+ schwierigkeitsgrad + "', '" + elementgruppe + "' );";
-
+					+ " (id, videoname, ampel, geraet, beschreibung, schwierigkeitsgrad, elementgruppe, video) "
+					+ "VALUES ( ?, ?, ?, ?, ?, ?, ?, ? );";
 			PreparedStatement stmt = connection.prepareStatement(sql,
 					Statement.RETURN_GENERATED_KEYS);
+		
+			if(id >= 0)
+				stmt.setInt(1, id);
+			stmt.setString(2, name);
+			stmt.setInt(3, ampel);
+			stmt.setString(4, geraet);
+			stmt.setString(5, beschreibung);
+			stmt.setString(6, schwierigkeitsgrad);
+			stmt.setString(7, elementgruppe);
+			stmt.setBytes(8, video);
+			
+		;
 			stmt.executeUpdate();
 			ResultSet generatedKeys = stmt.getGeneratedKeys();
 			generatedKeys.next();
