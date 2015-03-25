@@ -26,6 +26,7 @@ public class Video implements Serializable{
 	private String beschreibung;
 	private String schwierigkeitsgrad;
 	private String elementgruppe;
+	private byte[] videoDatei;
 	private int ampel;
 
 	private static final String videoLocationPrefix="/";
@@ -41,10 +42,15 @@ public class Video implements Serializable{
 		this.schwierigkeitsgrad = schwierigkeitsgrad;
 		this.elementgruppe = elementgruppe;
 		this.ampel = 0;
+		this.videoDatei = null;
 	}
 	public Video (int id, String name, String pfad, String geraet, String beschreibung, String schwierigkeitsgrad, String elementgruppe, int ampel){
 		this(id, name, pfad, geraet, beschreibung, schwierigkeitsgrad, elementgruppe);
 		this.ampel = ampel;
+	}
+	public Video (int id, String name, String pfad, String geraet, String beschreibung, String schwierigkeitsgrad, String elementgruppe, int ampel, byte[] videoDatei){
+		this(id, name, pfad, geraet, beschreibung, schwierigkeitsgrad, elementgruppe, ampel);
+		this.videoDatei = videoDatei;
 	}
 	
 	public int getId() {
@@ -54,7 +60,13 @@ public class Video implements Serializable{
 	public void setName(String name) {
 		this.name = name;
 	}
-
+	
+	public byte[] getVideoDatei() {
+		return videoDatei;
+	}
+	public void setVideoDatei(byte[] videoDatei) {
+		this.videoDatei = videoDatei;
+	}
 	public int getAmpel() {
 		return ampel;
 	}
