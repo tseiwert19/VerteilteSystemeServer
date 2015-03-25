@@ -1,6 +1,3 @@
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -9,6 +6,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 
 /**
  * Diese Klasse enthaelt alle Funktionen fuer die Datenbank
@@ -23,6 +23,8 @@ public class DatenbankController
 	private String serverLanguage;
 	private static final String DB_PATH = "server.sqlite";
 	private List<String> secondaryTablenames;
+	
+	final static Logger logger = Logger.getLogger(DatenbankController.class);
 
 	/**
 	 * Konstruktor Stellt die Verbindung zur Datenbank her und erstellt die
@@ -30,6 +32,8 @@ public class DatenbankController
 	 */
 	public DatenbankController(String serverLanguage) {
 		connectToDb();
+		BasicConfigurator.configure();
+		logger.info("DatenbankController: " + serverLanguage + " erstellt");
 		this.serverLanguage = serverLanguage;
 		secondaryTablenames = new ArrayList<String>();
 		secondaryTablenames.add(Konstanten.LANGUAGE_ENGLISH);
@@ -42,26 +46,29 @@ public class DatenbankController
 	 * Stellt eine Verbindung zur Datenbank her
 	 */
 	private void connectToDb() {
+		logger.info("DatenbankController: " + serverLanguage + " connectToDb()");
 		try {
 			Class.forName("org.sqlite.JDBC");
 			connection = DriverManager.getConnection("jdbc:sqlite:" + DB_PATH);
 		} catch (ClassNotFoundException e) {
-			System.err.println("Fehler beim Laden des JDBC-Treibers");
-			e.printStackTrace();
+			logger.error("DatenbankController: " + serverLanguage + " Fehler beim Laden des JDBC-Treibers");
+			logger.error(e.getMessage());
 		} catch (SQLException e) {
-			System.err.println("Fehler bei Verbindung zur Datenbank!");
-			e.printStackTrace();
+			logger.error("DatenbankController: " + serverLanguage + " Fehler bei Verbindung zur Datenbank!");
+			logger.error(e.getMessage());
 		}
 
 	}
 
 	public void createDatabase() {
+		logger.info("DatenbankController: " + serverLanguage + " createDatabase()");
 		createTable(Konstanten.LANGUAGE_GERMAN);
 		createTable(Konstanten.LANGUAGE_FRENCH);
 		createTable(Konstanten.LANGUAGE_ENGLISH);
 	}
 
 	private void createTable(String language) {
+		logger.info("DatenbankController: " + serverLanguage + " createTable(" + language + ")");
 		connectToDb();
 		try {
 			Statement statement = connection.createStatement();
@@ -71,8 +78,8 @@ public class DatenbankController
 							+ "(id INT PRIMARY KEY NOT NULL, videoname VARCHAR(50),  ampel INT NOT NULL, geraet VARCHAR, beschreibung VARCHAR, schwierigkeitsgrad VARCHAR, elementgruppe VARCHAR, video BLOB);  ");
 			statement.close();
 		} catch (SQLException e) {
-			System.err.println("Fehler beim Erstellen der Datenbank!");
-			e.printStackTrace();
+			logger.error("DatenbankController: " + serverLanguage + " Fehler beim Erstellen der Datenbank!");
+			logger.error(e.getMessage());
 		}
 	}
 
@@ -90,7 +97,7 @@ public class DatenbankController
 	public int addVideo(int id, String name, int ampel, String geraet,
 			String beschreibung, String schwierigkeitsgrad,
 			String elementgruppe, byte[] video, String sprache) {
-
+		logger.info("DatenbankController: " + serverLanguage + " addVideo()");
 		connectToDb();
 		try {
 			connection.setAutoCommit(false);
@@ -101,8 +108,9 @@ public class DatenbankController
 			PreparedStatement stmt = connection.prepareStatement(sql,
 					Statement.RETURN_GENERATED_KEYS);
 		
-			if(id >= 0)
+			if(id >= 0){
 				stmt.setInt(1, id);
+			}
 			stmt.setString(2, name);
 			stmt.setInt(3, ampel);
 			stmt.setString(4, geraet);
@@ -117,16 +125,15 @@ public class DatenbankController
 			generatedKeys.next();
 
 			id = (int) generatedKeys.getLong(1);
-
+			logger.info("DatenbankController: " + serverLanguage + " addVideo() Id: " + id);
 			stmt.close();
 			connection.commit();
 
 			connection.close();
 		} catch (SQLException e) {
-			System.err.println("Fehler beim Einfügen in die Datenbank!");
-			e.printStackTrace();
+			logger.error("DatenbankController: " + serverLanguage + " Fehler beim Einfügen in die Datenbank!");
+			logger.error(e.getMessage());
 		}
-		System.out.println("ID: " + id);
 		return id;
 	}
 
@@ -139,6 +146,7 @@ public class DatenbankController
 	 * @throws SQLException
 	 */
 	public ResultSet getAllEntries(String sprache) {
+		logger.info("DatenbankController: " + serverLanguage + " getAllEntries(Sprache: " + sprache + ")");
 		return findDatasets("SELECT * FROM " + sprache + ";");
 	}
 
@@ -150,6 +158,7 @@ public class DatenbankController
 	 * @return Videos
 	 */
 	public ResultSet getAllByAmpel(int i, String sprache) {
+		logger.info("DatenbankController: " + serverLanguage + " getAllByAmpel(" + i + ", " + sprache + ")");
 		return findDatasets("SELECT * FROM" + sprache + " WHERE ampel = " + i);
 	}
 
@@ -161,7 +170,7 @@ public class DatenbankController
 	 * @return Liste der gefunden Videos
 	 */
 	public ResultSet getAllByName(String name) {
-		System.out.println("GetAllByName()-Aufruf");
+		logger.info("DatenbankController: " + serverLanguage + " getAllByName( " + name + " )");
 		ResultSet results = findDatasets("SELECT * FROM " + serverLanguage
 				+ " WHERE videoname LIKE '%" + name + "%'");
 		String lastLanguage = serverLanguage;
@@ -179,8 +188,7 @@ public class DatenbankController
 							+ "%'");
 				}
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 			lastLanguage = language;
 		}
@@ -214,13 +222,14 @@ public class DatenbankController
 	 * @return
 	 */
 	private ResultSet findDatasets(String sql) {
+		logger.info("DatenbankController: " + serverLanguage + " findDatasets( " + sql + " )");
 		ResultSet alleVideos = null;
 		connectToDb();
 		try {
 			alleVideos = connection.createStatement().executeQuery(sql);
 		} catch (SQLException e) {
-			System.err.println("Fehler bei Datenbankabfrage!");
-			e.printStackTrace();
+			logger.error("DatenbankController: " + serverLanguage + " Fehler bei Datenbankabfrage!");
+			logger.error(e.getMessage());
 		}
 		return alleVideos;
 	}
@@ -257,6 +266,7 @@ public class DatenbankController
 	 * @throws SQLException
 	 */
 	public ResultSet getEntry(int primaryKey, String sprache) {
+		logger.info("DatenbankController: " + serverLanguage + " getEntry( " + primaryKey + ", " + sprache + " )");
 		return findDatasets("SELECT * FROM " + sprache + " WHERE id = '"
 				+ primaryKey + "'");
 	}
@@ -266,6 +276,7 @@ public class DatenbankController
 	 * 
 	 */
 	public void updateTranslation(int id, String newName, String sprache) {
+		logger.info("DatenbankController: " + serverLanguage + " updateTranslation( " + id + ", " + newName + ", " + sprache + ")");
 		connectToDb();
 
 		Statement stmt = null;
@@ -283,11 +294,8 @@ public class DatenbankController
 			stmt.close();
 			connection.close();
 		} catch (Exception e) {
-			System.err.println(e.getClass().getName() + ": " + e.getMessage());
-			System.exit(0);
+			logger.error(e.getMessage());
 		}
-		System.out.println("Operation done successfully");
-
 	}
 
 }

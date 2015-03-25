@@ -9,6 +9,9 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+
 /**
  * repr�sentiert den Server f�r unser verteiltes Systeme Projekt
  * 
@@ -28,27 +31,33 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 
 	private String serverLanguage;
 
+	final static Logger logger = Logger.getLogger(KampfrichterServer.class);
+
 	public static void main(String[] args) {
+		BasicConfigurator.configure();
 		try {
 			LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
+			logger.info("Registriere RMI-Port");
 		}
 
 		catch (RemoteException ex) {
-			System.out.println(ex.getMessage());
+			logger.error(ex.getMessage());
 		}
 		try {
 			Naming.rebind("Server", new KampfrichterServer(
 					Konstanten.LANGUAGE_GERMAN));
+			logger.info("Bind Server to Port");
 		} catch (MalformedURLException ex) {
-			System.out.println(ex.getMessage());
+			logger.error(ex.getMessage());
 		} catch (RemoteException ex) {
-			System.out.println(ex.getMessage());
+			logger.error(ex.getMessage());
 		}
 	}
 
 	protected KampfrichterServer(String serverLanguage) throws RemoteException,
 			MalformedURLException {
 		super();
+		logger.info("Server: " + serverLanguage + " erstellt");
 		this.serverLanguage = serverLanguage;
 		server = new ArrayList<String>();
 		server.add(Konstanten.SERVER_DEUTSCHLAND);
@@ -68,6 +77,9 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	public void insertNewTranslation(int id, String neueBezeichnung,
 			String sprache, boolean insertOnOtherServers)
 			throws RemoteException {
+		logger.info("Server: " + serverLanguage + " call insertNewTranslation("
+				+ id + ", " + neueBezeichnung + ", " + sprache + ", "
+				+ insertOnOtherServers + ")");
 		DatenbankController dbController = new DatenbankController(
 				serverLanguage);
 		dbController.updateTranslation(id, neueBezeichnung, sprache);
@@ -78,7 +90,9 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 
 	private void updateTranslationOnOtherServers(int id,
 			String neueBezeichnung, String sprache) {
-		System.out.println("DEUTSCH: updateTranslationOnOtherServers()");
+		logger.info("Server: " + serverLanguage
+				+ " updateTranslationOnOtherServers(" + id + ", "
+				+ neueBezeichnung + ", " + sprache + ")");
 		for (String tmp : server) {
 			try {
 				IServer iserver = (IServer) Naming.lookup(tmp);
@@ -88,8 +102,7 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 				}
 			} catch (MalformedURLException | RemoteException
 					| NotBoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 		}
 	}
@@ -99,9 +112,11 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	 */
 	public List<Video> findVideo(String name, boolean searchOnOtherServers)
 			throws RemoteException {
+		logger.info("Server: " + serverLanguage + " findVideo(" + name + ", "
+				+ searchOnOtherServers + ")");
 		VideoParser parser = new VideoParser(serverLanguage);
 		List<Video> videos = parser.mappeVideosVonName(name);
-		// TODO testen
+
 		if (videos.size() == 0 && searchOnOtherServers) {
 			videos = findVideoOnOtherServers(name);
 		}
@@ -115,13 +130,13 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 			String beschreibung, String schwierigkeitsgrad,
 			String elementgruppe, byte[] video, String sprache)
 			throws RemoteException {
+		logger.info("Server: " + serverLanguage + " insertNewVideo()");
 		DatenbankController dbController = new DatenbankController(
 				serverLanguage);
 		int id = dbController.addVideo(-1, name, ampel, geraet, beschreibung,
 				schwierigkeitsgrad, elementgruppe, video, sprache);
 
 		// Nach einem Insert sollten andere Server die ID reservieren
-		// TODO testen
 		if (sprache.equals(serverLanguage)) {
 			informServerAboutReservation(id);
 		}
@@ -132,6 +147,7 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	 * Server reserviert ID in der Datenbank
 	 */
 	public void reserveId(int id) throws RemoteException {
+		logger.info("Server: " + serverLanguage + " reserveId( " + id + ")");
 		DatenbankController dbController = new DatenbankController(
 				serverLanguage);
 		dbController.addVideo(id, Konstanten.RESERVED_ID, Konstanten.RED, "",
@@ -147,20 +163,20 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	 *            zu reservierende ID
 	 */
 	private void informServerAboutReservation(int id) {
+		logger.info("Server: " + serverLanguage
+				+ " informServerAboutReservation(" + id + ")");
 		for (String tmp : server) {
 			try {
 				IServer iserver = (IServer) Naming.lookup(tmp);
 				if (!serverLanguage.equals(iserver.getServerLanguage())) {
-					System.out.println("DEUTSCH:  call Server: " + tmp
-							+ " reserveId()");
 					iserver.reserveId(id);
 
 				}
 
 			} catch (MalformedURLException | RemoteException
 					| NotBoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage());
+				;
 			}
 		}
 	}
@@ -173,6 +189,8 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	 * @return
 	 */
 	private List<Video> findVideoOnOtherServers(String name) {
+		logger.info("Server: " + serverLanguage + " findVideoOnOtherServers("
+				+ name + ")");
 		List<Video> videos = new ArrayList<Video>();
 		for (String tmp : server) {
 			try {
@@ -194,14 +212,14 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 				}
 			} catch (MalformedURLException | RemoteException
 					| NotBoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 		}
 		return videos;
 	}
 
 	public String getServerLanguage() throws RemoteException {
+		logger.info("Server: " + serverLanguage + " getServerLanguage()");
 		return serverLanguage;
 	}
 
@@ -209,6 +227,7 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	 * Holt alle Videos einer Sprache von den anderen Servern
 	 */
 	private List<Video> restoreVideos() throws RemoteException {
+		logger.info("Server: " + serverLanguage + " restoreVideos()");
 		List<Video> alleVideos = new ArrayList<Video>();
 		List<Video> videos;
 		for (String tmp : server) {
@@ -225,8 +244,8 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 
 			} catch (MalformedURLException | RemoteException
 					| NotBoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage());
+				;
 			}
 		}
 		return alleVideos;
@@ -237,6 +256,8 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	 */
 	public List<Video> getAllVideosByLanguage(String language)
 			throws RemoteException {
+		logger.info("Server: " + serverLanguage + " getAllVideosByLanguage("
+				+ language + ")");
 		VideoParser parser = new VideoParser(serverLanguage);
 		return parser.mappeVideosVonSprache(language);
 	}
@@ -248,6 +269,7 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	 * @throws RemoteException
 	 */
 	public void restoreDatabase() throws RemoteException {
+		logger.info("Server: " + serverLanguage + " restoreDatabase()");
 		List<Video> videos = restoreVideos();
 		DatenbankController dbController = new DatenbankController(
 				serverLanguage);
