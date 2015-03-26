@@ -1,4 +1,4 @@
-package Server;
+package server;
 /**
  * Enthält alle wichtigen Konstanten
  * @author michael
