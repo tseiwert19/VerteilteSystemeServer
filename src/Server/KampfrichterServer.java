@@ -1,3 +1,4 @@
+package Server;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
