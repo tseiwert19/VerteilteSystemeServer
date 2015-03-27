@@ -75,22 +75,22 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	/**
 	 * f�gt eine, vom Client vorgeschlagene, �bersetzung ein
 	 */
-	public void insertNewTranslation(int id, String neueBezeichnung,
+	public void insertNewTranslation(int id, String neueBezeichnung,int ampel,
 			String sprache, boolean insertOnOtherServers)
 			throws RemoteException {
 		logger.info("Server: " + serverLanguage + " call insertNewTranslation("
-				+ id + ", " + neueBezeichnung + ", " + sprache + ", "
+				+ id + ", " + neueBezeichnung + ", " + ampel + ", " + sprache + ", "
 				+ insertOnOtherServers + ")");
 		DatenbankController dbController = new DatenbankController(
 				serverLanguage);
-		dbController.updateTranslation(id, neueBezeichnung, sprache);
+		dbController.updateTranslation(id, neueBezeichnung,ampel, sprache);
 		if (insertOnOtherServers) {
-			updateTranslationOnOtherServers(id, neueBezeichnung, serverLanguage);
+			updateTranslationOnOtherServers(id, neueBezeichnung, ampel, serverLanguage);
 		}
 	}
 
 	private void updateTranslationOnOtherServers(int id,
-			String neueBezeichnung, String sprache) {
+			String neueBezeichnung,int ampel, String sprache) {
 		logger.info("Server: " + serverLanguage
 				+ " updateTranslationOnOtherServers(" + id + ", "
 				+ neueBezeichnung + ", " + sprache + ")");
@@ -98,7 +98,7 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 			try {
 				IServer iserver = (IServer) Naming.lookup(tmp);
 				if (!serverLanguage.equals(iserver.getServerLanguage())) {
-					iserver.insertNewTranslation(id, neueBezeichnung, sprache,
+					iserver.insertNewTranslation(id, neueBezeichnung, ampel, sprache,
 							false);
 				}
 			} catch (MalformedURLException | RemoteException

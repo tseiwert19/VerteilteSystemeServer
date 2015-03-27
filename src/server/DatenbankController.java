@@ -276,8 +276,8 @@ public class DatenbankController
 	 * Aktualisiert einen Datensatz (AKTUALISIERT NUR NAME + AMPEL!!!!)
 	 * 
 	 */
-	public void updateTranslation(int id, String newName, String sprache) {
-		logger.info("DatenbankController: " + serverLanguage + " updateTranslation( " + id + ", " + newName + ", " + sprache + ")");
+	public void updateTranslation(int id, String newName,int ampel, String sprache) {
+		logger.info("DatenbankController: " + serverLanguage + " updateTranslation( " + id + ", " + newName + ", " + ampel + ", " + sprache + ")");
 		connectToDb();
 
 		Statement stmt = null;
@@ -287,7 +287,7 @@ public class DatenbankController
 
 			stmt = connection.createStatement();
 			String sql = "UPDATE " + sprache + " SET videoname = '" + newName
-					+ "', ampel = '" + Konstanten.YELLOW + "' WHERE id = '"
+					+ "', ampel = '" + ampel + "' WHERE id = '"
 					+ id + "';";
 			stmt.executeUpdate(sql);
 			connection.commit();
