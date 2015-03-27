@@ -1,4 +1,5 @@
 package server;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -75,22 +76,23 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 	/**
 	 * f�gt eine, vom Client vorgeschlagene, �bersetzung ein
 	 */
-	public void insertNewTranslation(int id, String neueBezeichnung,int ampel,
+	public void insertNewTranslation(int id, String neueBezeichnung, int ampel,
 			String sprache, boolean insertOnOtherServers)
 			throws RemoteException {
 		logger.info("Server: " + serverLanguage + " call insertNewTranslation("
-				+ id + ", " + neueBezeichnung + ", " + ampel + ", " + sprache + ", "
-				+ insertOnOtherServers + ")");
+				+ id + ", " + neueBezeichnung + ", " + ampel + ", " + sprache
+				+ ", " + insertOnOtherServers + ")");
 		DatenbankController dbController = new DatenbankController(
 				serverLanguage);
-		dbController.updateTranslation(id, neueBezeichnung,ampel, sprache);
+		dbController.updateTranslation(id, neueBezeichnung, ampel, sprache);
 		if (insertOnOtherServers) {
-			updateTranslationOnOtherServers(id, neueBezeichnung, ampel, serverLanguage);
+			updateTranslationOnOtherServers(id, neueBezeichnung, ampel,
+					serverLanguage);
 		}
 	}
 
 	private void updateTranslationOnOtherServers(int id,
-			String neueBezeichnung,int ampel, String sprache) {
+			String neueBezeichnung, int ampel, String sprache) {
 		logger.info("Server: " + serverLanguage
 				+ " updateTranslationOnOtherServers(" + id + ", "
 				+ neueBezeichnung + ", " + sprache + ")");
@@ -98,8 +100,8 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 			try {
 				IServer iserver = (IServer) Naming.lookup(tmp);
 				if (!serverLanguage.equals(iserver.getServerLanguage())) {
-					iserver.insertNewTranslation(id, neueBezeichnung, ampel, sprache,
-							false);
+					iserver.insertNewTranslation(id, neueBezeichnung, ampel,
+							sprache, false);
 				}
 			} catch (MalformedURLException | RemoteException
 					| NotBoundException e) {
@@ -142,6 +144,12 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 			informServerAboutReservation(id);
 		}
 
+	}
+
+	private boolean checkIfReservedId(int id) {
+		VideoParser parser = new VideoParser(serverLanguage);
+		Video video = parser.mappeEinVideo(id, serverLanguage);
+		return video.getName().equals(Konstanten.RESERVED_ID);
 	}
 
 	/**
@@ -202,10 +210,21 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 						String sprache = iserver.getServerLanguage();
 						// Fügt Videos in eigene Datenbank
 						for (Video video : videos) {
-							insertNewVideo(video.getName(), video.getAmpel(),
-									video.getGeraet(), video.getBeschreibung(),
-									video.getSchwierigkeitsgrad(),
-									video.getElementgruppe(), null, sprache);
+							if (checkIfReservedId(video.getId())) {
+								updateReservedId(video.getId(),
+										video.getName(), Konstanten.RED,
+										video.getGeraet(),
+										video.getBeschreibung(),
+										video.getSchwierigkeitsgrad(),
+										video.getElementgruppe(),
+										video.getVideoDatei(), sprache);
+							} else {
+								insertNewVideo(video.getName(),
+										video.getAmpel(), video.getGeraet(),
+										video.getBeschreibung(),
+										video.getSchwierigkeitsgrad(),
+										video.getElementgruppe(), null, sprache);
+							}
 						}
 						return videos;
 					}
@@ -217,6 +236,17 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 			}
 		}
 		return videos;
+	}
+
+	private void updateReservedId(int id, String name, int ampel,
+			String geraet, String beschreibung, String schwierigkeitsgrad,
+			String elementgruppe, byte[] video, String sprache) {
+		logger.info("Server: " + serverLanguage + " updateReservedId(" + id
+				+ ")");
+		DatenbankController dbController = new DatenbankController(
+				serverLanguage);
+		dbController.updateVideo(id, name, ampel, geraet, beschreibung,
+				schwierigkeitsgrad, elementgruppe, video, sprache);
 	}
 
 	public String getServerLanguage() throws RemoteException {
