@@ -218,13 +218,12 @@ public class KampfrichterServer extends UnicastRemoteObject implements IServer {
 										video.getSchwierigkeitsgrad(),
 										video.getElementgruppe(),
 										video.getVideoDatei(), serverLanguage);
-							} else {
-								insertNewVideo(video.getName(),
-										video.getAmpel(), video.getGeraet(),
-										video.getBeschreibung(),
-										video.getSchwierigkeitsgrad(),
-										video.getElementgruppe(), null, sprache);
 							}
+							insertNewVideo(video.getName(), video.getAmpel(),
+									video.getGeraet(), video.getBeschreibung(),
+									video.getSchwierigkeitsgrad(),
+									video.getElementgruppe(), video.getVideoDatei(), sprache);
+
 						}
 						return videos;
 					}
