@@ -94,7 +94,7 @@ public class VideoParser
                 id = ergebnis.getInt("id");
                 name = ergebnis.getString("videoname");
                 geraet = ergebnis.getString("geraet");
-                pfad = ergebnis.getString("pfad");
+                pfad = "";
                 beschreibung = ergebnis.getString("beschreibung");
                 schwierigkeitsgrad = ergebnis.getString("schwierigkeitsgrad");
                 elementgruppe = ergebnis.getString("elementgruppe");
