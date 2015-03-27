@@ -82,6 +82,7 @@ public class VideoParser
         String schwierigkeitsgrad;
         String elementgruppe;
         int ampel;
+        byte[] videoDatei;
         Video video;
         ArrayList<Video> videos = new ArrayList<Video>();
 
@@ -92,15 +93,16 @@ public class VideoParser
             {
                 id = ergebnis.getInt("id");
                 name = ergebnis.getString("videoname");
-                geraet = "";
-                pfad = "";
-                beschreibung = "";
-                schwierigkeitsgrad = "";
-                elementgruppe = "";
+                geraet = ergebnis.getString("geraet");
+                pfad = ergebnis.getString("pfad");
+                beschreibung = ergebnis.getString("beschreibung");
+                schwierigkeitsgrad = ergebnis.getString("schwierigkeitsgrad");
+                elementgruppe = ergebnis.getString("elementgruppe");
                 ampel = ergebnis.getInt("ampel");
+                videoDatei = ergebnis.getBytes("video");
 
                 video = new Video(id, name, pfad, geraet, beschreibung, schwierigkeitsgrad,
-                        elementgruppe, ampel);
+                        elementgruppe, ampel, videoDatei);
                 videos.add(video);
 
             }
